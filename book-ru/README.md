@@ -6,7 +6,7 @@
 
 [**Скачать полную книгу в PDF**](https://raw.githubusercontent.com/ilkruglov/ai-infra-book/main/book-ru/dist/AI-Infra-in-Depth-RU.pdf) · [Открыть PDF на GitHub](dist/AI-Infra-in-Depth-RU.pdf)
 
-Предисловие и 12 глав: 961 страница, 496 рисунков и 128 таблиц. Основной текст набран PT Serif, 11 pt с межстрочным интервалом 15 pt.
+Предисловие и 12 глав: 961 страница, 496 рисунков и 128 таблиц.
 
 Основной формат для чтения — PDF. Markdown ниже служит также исходником для сборки: часть относительных ссылок на источники и другие главы сохраняет пути оригинала и не открывается непосредственно на GitHub. При сборке PDF такие ссылки преобразуются в ссылки на зафиксированную версию исходного репозитория.
 
@@ -47,7 +47,7 @@
 
 Каталог `book-ru` содержит самостоятельное русское издание: исходники и иллюстрации в `book/`, сборщик в `scripts/`, тесты в `tests/`, готовый PDF в `dist/`. Сборка не изменяет другие языковые версии и не требует загрузки исследовательских наборов данных оригинала.
 
-Требования: Python 3.12, uv, Pandoc, XeLaTeX, Poppler (`pdfinfo`, `pdftotext`, `pdffonts`), MuPDF (`mutool`, для тестов), шрифты PT Serif, Noto Sans, DejaVu Sans и DejaVu Sans Mono. Для XeLaTeX нужны пакеты из `book/preamble.tex`, включая русскую поддержку Babel; в Debian/Ubuntu это пакеты `texlive-xetex`, `texlive-latex-extra`, `texlive-lang-cyrillic`, `fonts-paratype`, `fonts-noto-core`, `fonts-dejavu-core`, `poppler-utils`, `mupdf-tools` и `pandoc`.
+Требования: Python 3.12, uv, Pandoc, XeLaTeX, Poppler (`pdfinfo`, `pdftotext`, `pdffonts`) и MuPDF (`mutool`, для тестов). Для XeLaTeX нужны пакеты из `book/preamble.tex`, включая русскую поддержку Babel; в Debian/Ubuntu это пакеты `texlive-xetex`, `texlive-latex-extra`, `texlive-lang-cyrillic`, `fonts-paratype`, `fonts-noto-core`, `fonts-dejavu-core`, `poppler-utils`, `mupdf-tools` и `pandoc`.
 
 Из корня репозитория:
 
