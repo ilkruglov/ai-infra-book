@@ -26,12 +26,17 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
+sys.path.insert(0, str(HERE))
+from publishing_links import inherited_target
+
 MANUSCRIPTS = ROOT / 'manuscripts'
 BOOK_EN = ROOT / 'book-en'
 BOOK_ZH_TW = ROOT / 'book-zh-tw'
+BOOK_RU = ROOT / 'book-ru'
 REPO = 'https://github.com/bojieli/ai-infra-book'
 LFS_POINTER = b'version https://git-lfs.github.com/spec/v1'
 FIGURE_WIDTH = 1400  # pixels; sharp on a 300 ppi reader, small enough for phones
@@ -46,9 +51,12 @@ EDITIONS = {
     'zh-tw': dict(name='AI-Infra-Book-ZH-TW', lang='zh-Hant', author='李博杰',
                   title='深入理解 AI Infra', subtitle='量化分析與系統設計',
                   toc_title='目錄', footnotes_title='註釋'),
+    'ru': dict(name='AI-Infra-in-Depth-RU', lang='ru-RU', author='Боцзе Ли; русский перевод: community edition',
+               title='AI-инфраструктура изнутри', subtitle='Количественный анализ и проектирование систем',
+               toc_title='Содержание', footnotes_title='Примечания'),
 }
 # Translations keep their chapters in their own directory.
-HOMES = {'zh': HERE, 'en': BOOK_EN, 'zh-tw': BOOK_ZH_TW}
+HOMES = {'zh': HERE, 'en': BOOK_EN, 'zh-tw': BOOK_ZH_TW, 'ru': BOOK_RU / 'book'}
 
 
 def sources(edition):
@@ -56,6 +64,8 @@ def sources(edition):
     if edition == 'zh':
         return [(n, next(MANUSCRIPTS.glob(f'{n:02}-*.md'))) for n in range(13)]
     home = HOMES[edition]
+    if edition == 'ru':
+        return [(0, home / 'preface.md')] + [(n, home / f'chapter{n}.md') for n in range(1, 13)]
     return [(0, home / 'introduction.md')] + [(n, home / f'chapter{n:02}.md') for n in range(1, 13)]
 
 
@@ -91,6 +101,8 @@ def prepare(number, source, edition, source_ref, figures):
         text = re.sub(r'^# (.+?)\s*$', r'# \1 {#preface}', text, count=1, flags=re.M)
     elif edition in ('zh', 'zh-tw'):
         text = re.sub(r'^# (第\s*\d+\s*章.*?)\s*$', rf'# \1 {{#chapter-{number}}}', text, count=1, flags=re.M)
+    elif edition == 'ru':
+        text = re.sub(r'^# (Глава\s+\d+\.\s+.*?)\s*$', rf'# \1 {{#chapter-{number}}}', text, count=1, flags=re.M)
     else:
         text = re.sub(r'^# (.+?)\s*$', rf'# Chapter {number}  \1 {{#chapter-{number}}}', text, count=1, flags=re.M)
     text = re.sub(r'<a id="([^"]+)"></a>\s*\n+(#{1,6} [^\n]+)',
@@ -129,11 +141,21 @@ def prepare(number, source, edition, source_ref, figures):
             resolved = (base / unquote(path)).resolve()
         if not resolved.is_relative_to(ROOT):
             return match[0]
+        if not resolved.exists():
+            inherited = inherited_target(ROOT, source, unquote(path))
+            if inherited is not None:
+                resolved = inherited
         # Links between chapters stay inside the book.
         # Pandoc's --file-scope resolves "file.md#id" across the input files.
         if resolved.parent == MANUSCRIPTS and resolved.name in anchors:
             other = quote(prepared_name(edition, int(resolved.name[:2])))
             return f'[{label}]({other}#{fragment or anchors[resolved.name]})'
+        translated_chapters = {p: n for n, p in sources(edition)}
+        if resolved in translated_chapters:
+            chapter_number = translated_chapters[resolved]
+            other = quote(prepared_name(edition, chapter_number))
+            anchor = f'chapter-{chapter_number}' if chapter_number else 'preface'
+            return f'[{label}]({other}#{fragment or anchor})'
         relative = quote(resolved.relative_to(ROOT).as_posix(), safe='/')
         suffix = f'#{fragment}' if fragment else ''
         return f'[{label}]({REPO}/blob/{ref}/{relative}{suffix})'
@@ -177,13 +199,13 @@ def main():
     metadata.write_text(json.dumps({
         'title': [{'type': 'main', 'text': meta['title']}, {'type': 'subtitle', 'text': meta['subtitle']}],
         'creator': [{'role': 'author', 'text': meta['author']}],
-        'lang': meta['lang'], 'date': today, 'rights': 'CC BY-NC-SA 4.0',
+        'lang': meta['lang'], 'date': today, 'rights': 'Apache-2.0',
         'identifier': [{'scheme': 'URI', 'text': f'{REPO}#{meta["name"]}'}],
         'toc-title': meta['toc_title'],
     }, ensure_ascii=False))
     output = output_dir / f'{meta["name"]}.epub'
     staged = output.with_suffix('.epub.tmp')
-    command = ['pandoc', *inputs, '--from=markdown+lists_without_preceding_blankline',
+    command = ['pandoc', *inputs, '--from=markdown+lists_without_preceding_blankline+header_attributes',
                '--file-scope', '--to=epub3', '--metadata-file=' + str(metadata), '--mathml',
                '--toc', '--toc-depth=2', '--split-level=1',
                '--css=' + str(HERE / 'epub.css'), '--highlight-style=kate',

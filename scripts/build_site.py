@@ -19,6 +19,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'book'))
+from publishing_links import inherited_target
+
 DOCS = ROOT / 'build/docs'
 SITE = ROOT / 'build/site'
 FIGURE_CACHE = ROOT / 'build/site-figures'
@@ -40,6 +43,10 @@ EDITIONS = {
                   site_name='深入理解 AI Infra：量化分析與系統設計',
                   site_description='從資料搬移理解晶片、網路、推理與訓練系統',
                   labels=('首頁', '前言'), toggles=('切換深色模式', '切換淺色模式')),
+    'ru': dict(path='ru/', lang='ru', name='Русский', home=ROOT / 'book-ru', index='book-ru/README.md',
+               site_name='AI-инфраструктура изнутри: количественный анализ и проектирование систем',
+               site_description='Русское community edition книги Боцзе Ли об AI-инфраструктуре',
+               labels=('Главная', 'Предисловие'), toggles=('Тёмная тема', 'Светлая тема')),
 }
 
 
@@ -48,9 +55,12 @@ def chapters(edition):
     if edition == 'zh':
         found = [(int(p.name[:2]), p) for p in sorted((ROOT / 'manuscripts').glob('[0-9][0-9]-*.md'))]
         found = [(n, p) for n, p in found if n <= 12]
-    else:
+    elif edition in ('en', 'zh-tw'):
         home = EDITIONS[edition]['home']
         found = [(0, home / 'introduction.md')] + [(n, home / f'chapter{n:02}.md') for n in range(1, 13)]
+    else:
+        home = EDITIONS[edition]['home']
+        found = [(0, home / 'book' / 'preface.md')] + [(n, home / 'book' / f'chapter{n}.md') for n in range(1, 13)]
     if [n for n, _ in found] != list(range(13)):
         raise ValueError(f'Expected the preface and chapters 1–12 for {edition}')
     for _, path in found:
@@ -60,9 +70,10 @@ def chapters(edition):
 
 
 def title(path):
-    heading = path.read_text(encoding='utf-8').splitlines()[0]
+    heading = next((line for line in path.read_text(encoding='utf-8').splitlines()
+                    if line.startswith('# ')), '# ' + path.stem)
     heading = re.sub(r'\s*\{[^}]*\}\s*$', '', heading)
-    return re.sub(r'^# (第 \d+ 章 )?', '', heading)
+    return re.sub(r'^# (第 \d+ 章 |Глава \d+\.\s*)?', '', heading)
 
 
 def rasterize(pdf):
@@ -98,9 +109,15 @@ def stage(edition, ref):
         target = (source.parent / unquote(parsed.path)).resolve()
         if not target.is_relative_to(ROOT):
             raise ValueError(f'Link escapes repository: {source}: {url}')
-        if not target.exists():
+        inherited = None
+        if not image and not target.exists():
+            inherited = inherited_target(ROOT, source, unquote(parsed.path))
+            if inherited is not None:
+                target = inherited
+        if not target.exists() and inherited is None:
             raise FileNotFoundError(f'{source.relative_to(ROOT)}: {url}')
-        fragment = ('#' + parsed.fragment) if parsed.fragment else ''
+        fragment = (('?' + parsed.query) if parsed.query else '')
+        fragment += ('#' + parsed.fragment) if parsed.fragment else ''
         if target in sources:
             return quote(os.path.relpath(sources[target], output.parent), safe='/.-') + fragment
         if image:

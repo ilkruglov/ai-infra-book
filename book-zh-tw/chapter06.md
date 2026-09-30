@@ -94,10 +94,24 @@ Decode 還有時間上的依賴：當前輸出 token 決定下一步輸入。單
 | 流水線並行（PP） | 層 $L$ | 一段連續的層 | 相鄰階段之間交接活化值；訓練時再反向交接梯度 |
 | 專家並行（EP） | 專家 $E$ | 一部分專家 | 把 token 送到所選專家所在的卡，再把結果送回 |
 
-表中隱含著一項貫穿全章的區別。切樣本、序列位置、層或專家時，每張卡得到的是不同資料或不同層的完整結果，需要時收集或交接即可；切特徵時，各卡往往只得到同一個輸出的一部分貢獻，必須把這些部分和相加，結果才能使用。第 5.2.4 節在單卡內區分過輸出維與歸約維的切分，跨卡時區別相同，只是相加部分和要經過卡間互聯。
+**為什麼需要六種並行方式：從瓶頸到組合。**
 
-這些方式不是互斥的。序列並行通常和張量並行使用同一組卡，專家並行可以和注意力部分的資料並行共用同一批卡；流水線並行劃分的是有先後依賴的計算圖，不是把某個矩陣再切出一個維度。第 6.3 節將說明如何組合這些方式並給每張卡編號。
+這張表先說明切分位置，再說明每種切分所針對的瓶頸。可以用俄羅斯套娃理解這些分工：最外層管理樣本或請求，資料並行（DP）決定同時推進多少份獨立工作；一份工作沿模型的層逐步推進，流水線並行（PP）把連續的層交給不同階段；進入某一層後，專家並行（EP）按專家分布 MoE 計算，張量並行（TP）按特徵拆分矩陣，序列並行（SP）和上下文並行（CP）按序列位置分攤活化值與注意力。每一層都有自己的資料相依、同步點和通訊邊界。華為半導體首席科學家廖恒博士於 2026 年 9 月提出 Nested BSP（巢狀批次同步並行），把「並行計算—同步—交換—聚合」遞迴安排在多個層級，論文圖 1 也用軟體套娃展示這種組織方式。[^nested-bsp]
 
+套娃關係呈現的是組合結構。DP 可以複製完整的 TP×PP×EP 實例，SP 常在 TP 組內使用同一批卡，CP 隨長上下文的狀態容量和注意力計算加入，EP 服務含有專家集合的模型。它們沿不同座標切分同一個執行空間，分別承擔不同任務：
+
+* DP 面向大量樣本或請求，提升整體吞吐；
+* TP 面向層內矩陣和單次請求，分攤計算、權重與中間結果；
+* SP 面向 TP 組中的逐 token 運算子，分攤活化值的儲存和處理；
+* CP 面向長序列，分攤上下文狀態和注意力計算，並交換遠端上下文；
+* PP 面向層數和模型權重規模，把有先後關係的計算組織成流水；
+* EP 面向 MoE 的專家集合，分布專家權重和 token 路由。
+
+一種並行方式對應一個主要瓶頸。例如 16 張卡可以組織為 DP2×PP2×TP4：兩個模型副本分別處理不同樣本，每個副本分成兩個流水階段，每個階段由四張卡協作執行層內矩陣；四卡 TP 組還可以使用 SP，設備總數維持 16。設計組合時，應讓主要瓶頸在合適的層級得到切分，並讓通訊落在匹配的實體互聯上。
+
+表中還體現出兩類結果組織方式。沿樣本、序列位置、層或專家切分時，各卡負責不同資料或不同層，結果透過收集或階段交接繼續流動；沿特徵切分時，各卡貢獻同一個輸出的一部分，後續運算子需要先把部分和相加。第 5.2.4 節在單卡內區分過輸出維與歸約維，跨卡後的歸約同樣遵循這項規律。
+
+這些方式可以組合在同一部署中。序列並行通常和張量並行使用同一組卡，專家並行可以和注意力部分的資料並行共用一批卡，流水線並行負責劃分有先後相依的計算圖。第 6.3 節將說明組合方式並為每張卡編號。
 > **實驗 6-1 · 延伸：上下文長度與輸入行數如何影響容量和執行瓶頸**
 >
 > （a）求 Qwen3-235B-A22B 在 4096、8192、16384 個上下文 token 時的單請求 KV 容量。
@@ -1150,6 +1164,8 @@ $$
 [^nccl-basics]: NVIDIA，[NCCL 集合通訊語義](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html)、[點對點與不等長交換](https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/p2p.html)、[nccl-tests 頻寬口徑](https://github.com/NVIDIA/nccl-tests/blob/master/doc/PERFORMANCE.md)；閱讀快照與雜湊見[來源記錄](https://github.com/bojieli/ai-infra-book/blob/main/research/ub-ep-integration-2026-09-10/sources.json)。
 
 [^sequence-context]: Korthikanti 等，[Reducing Activation Recomputation in Large Transformer Models](https://github.com/bojieli/ai-infra-book/blob/main/references/files/papers/activation-recompute.pdf)，§3 的 tensor 與 sequence parallelism；[Megatron Core 的 Context Parallelism 文件](https://github.com/NVIDIA/Megatron-LM/blob/main/docs/user-guide/features/context_parallel.md)；Liu 等，[Ring Attention with Blockwise Transformers for Near-Infinite Context](https://arxiv.org/abs/2310.01889)。本節 SP 採用 Megatron 的特定含義，CP 的八位置例子為本書推導。
+
+[^nested-bsp]: 華為半導體首席科學家廖恒博士，[Nested Parallel von Neumann Architecture and Nested BSP](https://arxiv.org/abs/2609.16787)，arXiv:2609.16787，2026-09-15。§2 與圖 1 說明軟體並行的遞迴巢狀，第 10 章再分別說明 FSDP 與 SP。
 
 [^parallel-choice]: [切分選擇輸入](https://github.com/bojieli/ai-infra-book/blob/main/calculations/scenarios/parallel-choice-example.json)、[方案篩選指令碼](https://github.com/bojieli/ai-infra-book/blob/main/calculations/parallel_choice.py)、[完整結果](https://github.com/bojieli/ai-infra-book/blob/main/calculations/results/parallel-choice-book.md)。使用本章的執行時間模型，按實例內全部排隊會話的峰值上下文計算 KV 容量；只在明示的 TP 與實例陣列合內排序。
 

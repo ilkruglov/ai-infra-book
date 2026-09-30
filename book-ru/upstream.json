@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
   "repository": "https://github.com/bojieli/ai-infra-book",
-  "commit": "56ecb425b07ea6d16e891cba87bf7db416927d09",
+  "commit": "d0cc188b68f49584fd21e05518a5d0f0db79aaf5",
   "original_language": "zh-CN",
   "license": "Apache-2.0",
-  "snapshot_note": "Byte-identical manuscript copies staged with normalized filenames in .tmp/upstream/book; original checkout in .tmp/source-checkout. Originals and research datasets are not published here.",
+  "snapshot_note": "Translation synchronized with the pinned Chinese manuscripts. Chapter 5 retains Example 5-8 and Figure 5-24 from 56ecb425b07ea6d16e891cba87bf7db416927d09 in an explicitly marked editorial block; the updated original still refers to this example.",
   "pilot_sources": [
     {
       "original_path": "manuscripts/00-前言.md",
@@ -20,19 +20,71 @@
     }
   ],
   "markdown": [
-    {"path": "book/preface.md", "original_path": "manuscripts/00-前言.md", "blob_sha1": "ff0e97131545c71483dc99d9260983f23c71a6b9"},
-    {"path": "book/chapter1.md", "original_path": "manuscripts/01-初识 AI Infra.md", "blob_sha1": "3be7a29c0f6bf1471cf6807848d1760fab95858d"},
-    {"path": "book/chapter2.md", "original_path": "manuscripts/02-模型架构.md", "blob_sha1": "1ec828eb65bbcd3c41a01a467cf73c57863d9176"},
-    {"path": "book/chapter3.md", "original_path": "manuscripts/03-推理与训练负载.md", "blob_sha1": "94961efa010e48510bd45e5197ce27701c8b2da0"},
-    {"path": "book/chapter4.md", "original_path": "manuscripts/04-加速器架构.md", "blob_sha1": "fbd71aaf9be2d195e4aeb043f073c4e89f3728fe"},
-    {"path": "book/chapter5.md", "original_path": "manuscripts/05-算子与运行时.md", "blob_sha1": "168d95e0fb452c2eec76abea3b382440aec06a9e"},
-    {"path": "book/chapter6.md", "original_path": "manuscripts/06-超节点.md", "blob_sha1": "f4274fe8fd662e43d0b2b37c7833a2b471325cfa"},
-    {"path": "book/chapter7.md", "original_path": "manuscripts/07-数据中心网络.md", "blob_sha1": "05156ed73e58649848ebf03dbbe4c10804c98185"},
-    {"path": "book/chapter8.md", "original_path": "manuscripts/08-推理优化.md", "blob_sha1": "bf81187058c2e0f4142a2640d728c7fcd6f8f10d"},
-    {"path": "book/chapter9.md", "original_path": "manuscripts/09-分布式推理.md", "blob_sha1": "580f9b623fd7234bad80c938527bbebcbda5bc0e"},
-    {"path": "book/chapter10.md", "original_path": "manuscripts/10-训练系统.md", "blob_sha1": "d993624bedb2d6e002b72b8137c193879df21136"},
-    {"path": "book/chapter11.md", "original_path": "manuscripts/11-资源调度与运行环境.md", "blob_sha1": "2fd433f539fba98233b1f1eeeccb4c796c5f60e8"},
-    {"path": "book/chapter12.md", "original_path": "manuscripts/12-端边云协同.md", "blob_sha1": "a6b1aa5db3cb6cf6c1fa64b078b79abf15f7fcf5"}
+    {
+      "path": "book/preface.md",
+      "original_path": "manuscripts/00-前言.md",
+      "blob_sha1": "ff0e97131545c71483dc99d9260983f23c71a6b9"
+    },
+    {
+      "path": "book/chapter1.md",
+      "original_path": "manuscripts/01-初识 AI Infra.md",
+      "blob_sha1": "3be7a29c0f6bf1471cf6807848d1760fab95858d"
+    },
+    {
+      "path": "book/chapter2.md",
+      "original_path": "manuscripts/02-模型架构.md",
+      "blob_sha1": "1ec828eb65bbcd3c41a01a467cf73c57863d9176"
+    },
+    {
+      "path": "book/chapter3.md",
+      "original_path": "manuscripts/03-推理与训练负载.md",
+      "blob_sha1": "94961efa010e48510bd45e5197ce27701c8b2da0"
+    },
+    {
+      "path": "book/chapter4.md",
+      "original_path": "manuscripts/04-加速器架构.md",
+      "blob_sha1": "928940d2114333d81fd1677bd6c59cb238a8cbd5"
+    },
+    {
+      "path": "book/chapter5.md",
+      "original_path": "manuscripts/05-算子与运行时.md",
+      "blob_sha1": "bd35f276977ecc6634994a470a82df8285de4878"
+    },
+    {
+      "path": "book/chapter6.md",
+      "original_path": "manuscripts/06-超节点.md",
+      "blob_sha1": "c70e985d1bab0f188588705c8845e57f440c037b"
+    },
+    {
+      "path": "book/chapter7.md",
+      "original_path": "manuscripts/07-数据中心网络.md",
+      "blob_sha1": "05156ed73e58649848ebf03dbbe4c10804c98185"
+    },
+    {
+      "path": "book/chapter8.md",
+      "original_path": "manuscripts/08-推理优化.md",
+      "blob_sha1": "bf81187058c2e0f4142a2640d728c7fcd6f8f10d"
+    },
+    {
+      "path": "book/chapter9.md",
+      "original_path": "manuscripts/09-分布式推理.md",
+      "blob_sha1": "580f9b623fd7234bad80c938527bbebcbda5bc0e"
+    },
+    {
+      "path": "book/chapter10.md",
+      "original_path": "manuscripts/10-训练系统.md",
+      "blob_sha1": "1de81ff72efbe28bb53ef6d083b906f811c1a403"
+    },
+    {
+      "path": "book/chapter11.md",
+      "original_path": "manuscripts/11-资源调度与运行环境.md",
+      "blob_sha1": "2fd433f539fba98233b1f1eeeccb4c796c5f60e8"
+    },
+    {
+      "path": "book/chapter12.md",
+      "original_path": "manuscripts/12-端边云协同.md",
+      "blob_sha1": "a6b1aa5db3cb6cf6c1fa64b078b79abf15f7fcf5"
+    }
   ],
   "tooling_source": {
     "repository": "https://github.com/ilkruglov/ai-agent-book",

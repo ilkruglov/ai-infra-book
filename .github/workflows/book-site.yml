@@ -25,7 +25,7 @@ jobs:
           cache: pip
           cache-dependency-path: website/requirements.txt
       - name: Fetch book figures
-        run: git lfs pull --include="manuscripts/**/*.svg,manuscripts/**/*.png,manuscripts/**/*.jpg,manuscripts/**/*.jpeg,book-en/images/**,book-zh-tw/images/**" --exclude=""
+        run: git lfs pull --include="manuscripts/**/*.svg,manuscripts/**/*.png,manuscripts/**/*.jpg,manuscripts/**/*.jpeg,book-en/images/**,book-zh-tw/images/**,book-ru/book/**/*.pdf,book-ru/book/**/*.svg" --exclude=""
       - name: Enforce Markdown source policy
         run: python scripts/check_no_html.py
       - name: Install website dependencies
@@ -128,9 +128,49 @@ jobs:
             ${{ matrix.output }}/preview-*.png
           if-no-files-found: ignore
 
+  pdf-ru:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Fetch Russian edition figures
+        run: git lfs pull --include="book-ru/book/**/*.pdf,book-ru/book/**/*.svg" --exclude=""
+      - name: Install Russian PDF and EPUB dependencies
+        run: |
+          brew install texlive poppler ghostscript epubcheck
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/pandoc.pkg" "https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-$(uname -m)-macOS.pkg"
+          sudo installer -pkg "$RUNNER_TEMP/pandoc.pkg" -target /
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+      - name: Build Russian PDF
+        run: |
+          python book-ru/scripts/build_pdf.py --full
+          mkdir -p build/pdf-ru
+          cp book-ru/.tmp/pdf-build/AI-Infra-in-Depth-RU.pdf build/pdf-ru/
+          cp book-ru/.tmp/pdf-build/AI-Infra-in-Depth-RU.json build/pdf-ru/AI-Infra-in-Depth-RU-build.json
+          pages=$(pdfinfo build/pdf-ru/AI-Infra-in-Depth-RU.pdf | awk '/Pages:/ {print $2}')
+          test "$pages" -ge 12
+          pdftotext build/pdf-ru/AI-Infra-in-Depth-RU.pdf - | grep -q "Полная книга"
+      - name: Build and validate Russian EPUB
+        env:
+          BOOK_SOURCE_REF: ${{ github.sha }}
+        run: |
+          python book/build_epub.py --edition ru --output-dir "$GITHUB_WORKSPACE/build/pdf-ru" --source-ref "$BOOK_SOURCE_REF"
+          epubcheck build/pdf-ru/AI-Infra-in-Depth-RU.epub
+      - uses: actions/upload-artifact@v7
+        with:
+          name: book-pdf-ru-download
+          if-no-files-found: error
+          path: |
+            build/pdf-ru/AI-Infra-in-Depth-RU.pdf
+            build/pdf-ru/AI-Infra-in-Depth-RU.epub
+            build/pdf-ru/AI-Infra-in-Depth-RU-build.json
+
   release:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [website, pdf]
+    needs: [website, pdf, pdf-ru]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -164,6 +204,7 @@ jobs:
               ('简体中文', 'AI-Infra-Book', f'{site}/'),
               ('English', 'AI-Infra-Book-EN', f'{site}/en/'),
               ('繁體中文', 'AI-Infra-Book-ZH-TW', f'{site}/zh-tw/'),
+              ('Русский', 'AI-Infra-in-Depth-RU', f'{site}/ru/'),
           ]
           table = '\n'.join(
               f'| {lang} | [{name}.pdf]({latest}/{name}.pdf) | [{name}.epub]({latest}/{name}.epub) | [在线阅读]({url}) |'
@@ -174,8 +215,8 @@ jobs:
               '| 语言 | PDF | EPUB | 网页 |\n| --- | --- | --- | --- |\n'
               f'{table}\n\n'
               '表中链接始终指向最新版。PDF 排版完整，适合电脑与平板；EPUB 字号可调，适合手机与电子书阅读器。'
-              '英文版由 [@tg1482](https://github.com/tg1482) 翻译，'
-              '繁體中文版由 [@edward821220](https://github.com/edward821220) 翻译整理。\n')
+              '原作者为 [Bojie Li](https://github.com/bojieli)；英文版由 [@tg1482](https://github.com/tg1482) 翻译，'
+              '繁體中文版由 [@edward821220](https://github.com/edward821220) 翻译整理；俄文 community edition 由 [@ilkruglov](https://github.com/ilkruglov) 组织并完成翻译与校验。\n')
           PY
       - name: Publish release for this commit
         env:
@@ -200,7 +241,7 @@ jobs:
           fi
           retry gh release upload "$tag" \
             dist/AI-Infra-Book.pdf dist/AI-Infra-Book-EN.pdf dist/AI-Infra-Book-ZH-TW.pdf \
-            dist/AI-Infra-Book.epub dist/AI-Infra-Book-EN.epub dist/AI-Infra-Book-ZH-TW.epub --clobber
+            dist/AI-Infra-Book.epub dist/AI-Infra-Book-EN.epub dist/AI-Infra-Book-ZH-TW.epub dist/AI-Infra-in-Depth-RU.pdf dist/AI-Infra-in-Depth-RU.epub --clobber
           # Remove legacy build extras if this commit's release is being rerun.
           for asset in AI-Infra-Book-build.json AI-Infra-Book-Cover.pdf AI-Infra-Book-Cover.png ai-infra-book-site.tar.gz pdf-validation.json SHA256SUMS; do
             if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fxq "$asset"; then
@@ -211,7 +252,7 @@ jobs:
 
   deploy:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    needs: [website, pdf]
+    needs: [website, pdf, pdf-ru]
     runs-on: ubuntu-24.04
     permissions:
       pages: write

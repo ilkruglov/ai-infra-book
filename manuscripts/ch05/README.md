@@ -4,7 +4,7 @@
 
 正文按设备执行、单算子、算子链、编译器、运行时和完整请求六节展开，含 23 小节、12 道带解例题和 9 项章末实验。5.2 节把局部存储布局与切分维度分成两个小节；5.1 和 5.5 新增复制路径、流与事件、主机流水、图重放和形状分桶的机制图。每组例题从条件推导结果，再改变条件形成设计判断。段落通过数据依赖、资源限制与前一方案尚未解决的问题衔接；机制图与时间线先说明工作如何执行，再与公式和数值对应。AKG 的多面体编译通过 Halide／TVM 风格的循环变换、依赖与存储寿命解释。
 
-当前正文共 37 幅插图，均提供 SVG 与 PNG；5.2–5.3 的十三幅试改图另提供 PDF，按 420 pt（约 148 mm）宽设计，主体标签 12 pt、辅助标签不低于 11 pt。图号和完整图题位于正文 caption。阅读版内嵌图片、KaTeX 公式和字体，可离线阅读。
+当前正文共 40 幅插图，均提供 SVG 与 PNG；5.2–5.3 的十三幅试改图另提供 PDF，按 420 pt（约 148 mm）宽设计，主体标签 12 pt、辅助标签不低于 11 pt。图号和完整图题位于正文 caption。阅读版内嵌图片、KaTeX 公式和字体，可离线阅读。
 
 | 图 | 内容 | 文件 |
 | --- | --- | --- |
@@ -31,6 +31,8 @@
 | 5-21 | 从等待全部投影到逐块开始激活 | [SVG](figure-5-15-persistent.svg) · [PNG](figure-5-15-persistent.png) |
 | 5-22 | 局部加速引起关键路径切换 | [SVG](figure-5-16-critical-path.svg) · [PNG](figure-5-16-critical-path.png) |
 | 5-23 | 完整请求的逐轮配对时间差 | [SVG](figure-5-17-request.svg) · [PNG](figure-5-17-request.png) |
+
+
 
 
 [取材记录](reading-notes.md)说明已读 calculations、survey、论文与实验的采用范围。[sources.json](sources.json)锁定输入，[figure-data.json](figure-data.json)保存图数据，[figure-index.json](figure-index.json)将当前图号映射到稳定文件名。新增图片后图号已顺延；旧文件名与数据键保留，避免破坏复算引用。[manifest.json](manifest.json)记录输出。未运行新 GPU 基准，未将已有 partial 实验改为完成。
