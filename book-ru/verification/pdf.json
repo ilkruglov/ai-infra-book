@@ -17,7 +17,7 @@
   ],
   "upstream_repository": "https://github.com/bojieli/ai-infra-book",
   "upstream_commit": "56ecb425b07ea6d16e891cba87bf7db416927d09",
-  "pdf_sha256": "ae34114fe3f2ca7d2cb6d869a8eac82780d15a355ca46b046bdecddb7e545cc6",
+  "pdf_sha256": "d9fd84088e0babb24a0501fa359230a8f5f60dd6c4297353bad413e619688c63",
   "figure_count": 496,
   "inputs": {
     "upstream.json": "ded283a2d1050d90abb018ce2182d486bcf7f5bc54bcaa4a9502c4a643bb1b64",
@@ -30,7 +30,7 @@
     "book/chapter6.md": "d8f252431433d0b79bbdeae080a678cf12ba2a98616ccbe241dd30caa8efcb63",
     "book/chapter7.md": "078b8369cb71854927e692fbcc461c1eb081306274fa2cf72f5063cf3080ee14",
     "book/chapter8.md": "86f65a3aef97c3ddf9b516a8e82bee784a7bd0345503ec98c32266f5e9055906",
-    "book/chapter9.md": "06a4bbb05130a92756bbc105938df6e09052685a41ed84c885e6aeb3c9586935",
+    "book/chapter9.md": "74c422370f9a60ccab22d6c548a0ba5811e4b90d6f815556fe3d955fc327050d",
     "book/chapter10.md": "c50ced35168431a2aa9b5f388d8e2496e69a50f76e0f2046fda45668720a753a",
     "book/chapter11.md": "6ef70920b274dfea8a5769618a23dc357d3dc6a29e480d01ec0897f2d1217dfc",
     "book/chapter12.md": "ad77c3f5bc8d3f489eacdeff3c112f628aac0a20e42770e8dff086427c6f0958",
