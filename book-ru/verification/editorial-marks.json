@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "scope": "All net text changes in book-ru/book/*.md from initial Russian edition to reviewed publication; not a new full-book retranslation review",
+  "initial_translation_commit": "6d3a594456a9e091803ece394906580b701a8965",
+  "reviewed_publication_commit": "5115e79d5ff951ccb40241a0d3c142bcea2f2107",
+  "upstream_commit": "d0cc188b68f49584fd21e05518a5d0f0db79aaf5",
+  "method": "Read every changed Markdown hunk and corresponding pinned Chinese manuscript; verify retained chapter 5 example against original 56ecb425; check chapter 6 matrix identity and chapter 9 fixed-demand arithmetic and DistServe.",
+  "chapters": [
+    {
+      "file": "book/chapter2.md",
+      "classification": "translation_link_fix",
+      "details": "Correct local model-matrix anchor; no meaning change."
+    },
+    {
+      "file": "book/chapter3.md",
+      "classification": "translation_link_fix",
+      "details": "Correct local agent-trace anchor; no meaning change."
+    },
+    {
+      "file": "book/chapter4.md",
+      "classification": "upstream_translation",
+      "details": "GPU/Ascend data movement and synchronization comparison matches pinned Chinese addition."
+    },
+    {
+      "file": "book/chapter5.md",
+      "classification": "upstream_translation_and_marked_retention",
+      "details": "AKG/isl, TileLang-Ascend, formulas, pseudocode, comparison table and footnotes match pinned author additions. Retained example 5-8 and figure 5-24 come from 56ecb425, absent in d0cc188b despite its retained reference. Expanded editorial disclosure cites original version.",
+      "editorial_line": 732
+    },
+    {
+      "file": "book/chapter6.md",
+      "classification": "upstream_translation_and_marked_clarification",
+      "details": "Nested parallelism and 16-card example match author additions. Restriction of summation to reduction-axis partitioning is editorial and now quotes author and provides matrix identity. Added blank paragraph separator before experiment 6-1 to repair Markdown rendering without changing wording.",
+      "editorial_line": 116
+    },
+    {
+      "file": "book/chapter9.md",
+      "classification": "marked_clarification",
+      "details": "The homogeneous PD throughput conclusion is conditional on unchanged per-stage GPU seconds; goodput is distinguished from throughput. Added author wording, calculation and independent source.",
+      "editorial_line": 179
+    },
+    {
+      "file": "book/chapter10.md",
+      "classification": "upstream_translation",
+      "details": "FSDP versus SP paragraphs and Nested BSP citation match pinned author additions."
+    }
+  ],
+  "unchanged_since_initial": [
+    "preface.md",
+    "chapter1.md",
+    "chapter7.md",
+    "chapter8.md",
+    "chapter11.md",
+    "chapter12.md"
+  ],
+  "unsupported_changes_found": [],
+  "independent_sources": [
+    "https://arxiv.org/abs/2401.09670"
+  ],
+  "chapter9_arithmetic": {
+    "input": "Rounded book values: P=0.856, D=1.764 GPU seconds/request, 8 identical GPUs",
+    "colocated_requests_per_second": 3.0534351145038165,
+    "best_integer_partition": {
+      "prefill": 3,
+      "decode": 5
+    },
+    "separated_requests_per_second": 2.834467120181406,
+    "relative_loss_percent": 7.171201814058959,
+    "interpretation": "A fixed-demand steady-state capacity bound, not a benchmark or SLO guarantee. Pinned author result calculations/results/pd-pool-homogeneous.md explicitly lists these assumptions."
+  },
+  "editorial_policy": "Never silently alter author meaning: preserve the author's wording or explicitly label a justified departure with its source."
+}

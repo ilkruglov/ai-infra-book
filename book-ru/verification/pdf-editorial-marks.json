@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "pdf_path": "dist/AI-Infra-in-Depth-RU.pdf",
+  "pdf_sha256": "83c98cf02c934fa6fba9c8a5f2645a69de503f202fc317ab0d8d770d0d7255a8",
+  "pages": 967,
+  "figure_count": 496,
+  "table_count": 130,
+  "tests": {
+    "command": "uv run pytest -q --basetemp=.tmp/pytest-editorial-final",
+    "passed": 239
+  },
+  "build": {
+    "command": "uv run python scripts/build_pdf.py --full",
+    "overfull_boxes": 0,
+    "missing_characters": 0,
+    "undefined_references": 0
+  },
+  "page_bounds": {
+    "method": "MuPDF structured text character quads against rotation-aware page dimensions; tolerance 0.5 PDF pt",
+    "glyphs_checked": 2179122,
+    "outside_page_glyphs": 0
+  },
+  "all_fonts_embedded": true,
+  "visual_review": {
+    "physical_pages": [
+      344,
+      385,
+      661
+    ],
+    "scope": "Editorial notes in chapters 5, 6 and 9; adjoining text, chapter 5 table continuation and repaired chapter 6 experiment block",
+    "result": "Readable notes and formulas, no clipping or overlapping text in reviewed regions; experiment 6-1 has separate lettered items without literal quote markers"
+  },
+  "historical_reports_note": "Older layout, table, footnote and typography reports retain their original PDF hashes and are not claimed as fresh visual reviews of this build.",
+  "editorial_audit": "verification/editorial-marks.json"
+}
