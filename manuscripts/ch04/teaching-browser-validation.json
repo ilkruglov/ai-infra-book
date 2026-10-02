@@ -166,13 +166,17 @@
       {
         "loaded": true,
         "width": 720
+      },
+      {
+        "loaded": true,
+        "width": 720
       }
     ],
     "mathErrors": 0,
-    "mathCount": 294,
+    "mathCount": 289,
     "brokenAnchors": [],
     "chapter": 4,
-    "expectedImages": 41
+    "expectedImages": 42
   },
   {
     "width": 390,
@@ -341,12 +345,16 @@
       {
         "loaded": true,
         "width": 560
+      },
+      {
+        "loaded": true,
+        "width": 560
       }
     ],
     "mathErrors": 0,
-    "mathCount": 294,
+    "mathCount": 289,
     "brokenAnchors": [],
     "chapter": 4,
-    "expectedImages": 41
+    "expectedImages": 42
   }
 ]

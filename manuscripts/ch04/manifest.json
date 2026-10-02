@@ -1,7 +1,7 @@
 {
   "chapter": 4,
   "generator": "manuscripts/ch04/build.py",
-  "figures": 41,
+  "figures": 42,
   "font_family": "Source Han Sans CN",
   "outputs": [
     {
@@ -531,6 +531,30 @@
     {
       "path": "calculations/results/v41-throughline.json",
       "sha256": "dec1c46cf9e0410d35d106b9c48c9b4591301397b9e69a15520a8ae6b8cf403a"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-path.svg",
+      "sha256": "1843c4e770bb1243520c97a2007dab50164fbb66d53d3e39266725c35b928e8d"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-path.png",
+      "sha256": "a5ff078e2111e48ac7eb5e372e8bbce708990f3209938e2e4a8e82277e3cb5ca"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-path.pdf",
+      "sha256": "b15a3b36c255ae85ade55ccbd7fa00728d60542ef4da24c1c4704e88ba9d8cb4"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-timeline.svg",
+      "sha256": "f783468f7ef6eb732f9074211e64da227142e9a5f0abc465ddfc63cca1482217"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-timeline.png",
+      "sha256": "fbdff683bc820639efe36c6624870b5307957b334b5e57c7729dbe2b219e71c5"
+    },
+    {
+      "path": "manuscripts/ch04/figure-4-davinci-attention-timeline.pdf",
+      "sha256": "9c41b0ad30d2e942dc9dfc46c2c81ab9e17b02750d4b4dd0f0f0cb82ba8e2045"
     }
   ]
 }

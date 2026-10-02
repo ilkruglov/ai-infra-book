@@ -84,6 +84,14 @@ Let us introduce a set of real models that will run through the entire book. Dee
 
 This is an architecture-level choice, and it also changes what the system must save and transmit. This book will develop its discussion around the same type of session: an agent waits for a tool to return, restores the prior context, processes new input, and continues generating. Chapter 2 explains the structure and state of CED, Chapter 3 breaks down input and generation workloads, Chapters 4–7 trace accelerator execution and data paths, Chapters 8 and 9 discuss how to cache state and allocate requests, and the final chapters compare the execution results for complete tasks. The open-source model Qwen3 provides basic worked examples for establishing the calculation methods; V4/V4.1 are used to examine how model and system change together.
 
+### 1.1.4 From Stored Programs to Dataflow Execution
+
+A useful way to understand an AI accelerator is to imagine a building. If all the toilets are on the first floor, everyone upstairs must go downstairs, and distance and congestion limit the building's efficiency. Putting toilets on every floor shortens the trip, but uses more space and requires more plumbing, maintenance, and capacity planning. Registers, caches, on-chip buffers, device memory, and host memory are data-access points with different distances, capacities, and costs.
+
+The evolution of computer architecture has continually addressed this distance. Stored-program computers keep instructions and data in addressable memory; as processors became faster than the memory system could supply data, registers, multilevel caches, prefetching, vector instructions, and parallel execution were introduced to reduce waiting. GPUs and AI accelerators make data reuse more explicit: threads cooperate through shared memory, matrix units reuse operands along fixed paths, copy engines overlap movement with computation, and compilers arrange tiles, layouts, and buffers.
+
+Transformer prefill, decode, KV access, and expert routing have different reuse ranges, so one automatic caching policy cannot cover them all. Accelerators therefore have to co-design compute units, local storage, and data paths; the following chapters show how these resources turn model execution into work that can be computed, moved, and scheduled.
+
 ## 1.2 Key Metrics for System Design
 
 ### 1.2.1 Judging a Scheme by Order of Magnitude

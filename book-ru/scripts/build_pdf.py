@@ -54,6 +54,13 @@ def prepare_markdown(
         text = re.sub(r"^# Глава\s+\d+\.\s+", "# ", text, count=1, flags=re.MULTILINE)
         text = re.sub(r"^(#{2,6}) \d+(?:\.\d+)*\s+", r"\1 ", text, flags=re.MULTILINE)
 
+    # Pandoc drops raw HTML in LaTeX output; preserve section link targets.
+    text = re.sub(
+        r'<a id="([^"]+)"></a>\s*\n+(#{1,6} [^\n]+)',
+        lambda match: match[2] + " {#" + match[1] + "}",
+        text,
+    )
+
     def replace_image(match: re.Match[str]) -> str:
         svg = (source.parent / unquote(match[2])).resolve()
         if svg.suffix.lower() != ".svg":
@@ -178,6 +185,17 @@ def _fonts(pdf: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
             if line.split()
         }
     )
+    # The Da Vinci figures embed the repository-pinned font for their labels.
+    if "SourceHanSansCN-Regular" in embedded:
+        diagram_font = PROJECT.parent / "manuscripts/figure_style/fonts/SourceHanSansCN-Regular.otf"
+        if not diagram_font.is_file() or diagram_font.read_bytes().startswith(b"version https://git-lfs"):
+            raise BuildError(f"Не найден шрифт иллюстраций: {diagram_font}")
+        fonts["diagram_labels"] = {
+            "family": "Source Han Sans CN",
+            "pdf_name": "SourceHanSansCN-Regular",
+            "path": str(diagram_font),
+            "sha256": _sha256(diagram_font),
+        }
     unknown = set(embedded) - {font["pdf_name"] for font in fonts.values()}
     if unknown:
         raise BuildError("В PDF встроены неучтённые шрифты: " + ", ".join(sorted(unknown)))

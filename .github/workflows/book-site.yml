@@ -137,13 +137,39 @@ jobs:
         with:
           python-version: '3.12'
       - name: Fetch Russian edition figures
-        run: git lfs pull --include="book-ru/book/**/*.pdf,book-ru/book/**/*.svg" --exclude=""
-      - name: Install Russian PDF and EPUB dependencies
+        run: git lfs pull --include="book-ru/book/**/*.pdf,book-ru/book/**/*.svg,manuscripts/figure_style/fonts/SourceHanSansCN-Regular.otf" --exclude=""
+      - name: Install Russian PDF fonts and dependencies
         run: |
-          brew install texlive poppler ghostscript epubcheck
+          brew install --cask font-dejavu font-noto-sans
+          font_dir="$HOME/Library/Fonts"
+          mkdir -p "$font_dir"
+          curl --fail --location --retry 3 -o "$font_dir/PT_Serif-Web-Regular.ttf" "https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/PT_Serif-Web-Regular.ttf"
+          curl --fail --location --retry 3 -o "$font_dir/PT_Serif-Web-Bold.ttf" "https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/PT_Serif-Web-Bold.ttf"
+          curl --fail --location --retry 3 -o "$font_dir/PT_Serif-Web-Italic.ttf" "https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/PT_Serif-Web-Italic.ttf"
+          curl --fail --location --retry 3 -o "$font_dir/PT_Serif-Web-BoldItalic.ttf" "https://raw.githubusercontent.com/google/fonts/main/ofl/ptserif/PT_Serif-Web-BoldItalic.ttf"
+          brew install fontconfig texlive poppler ghostscript epubcheck
+          fc-cache -f
           curl --fail --location --retry 3 --output "$RUNNER_TEMP/pandoc.pkg" "https://github.com/jgm/pandoc/releases/download/3.7.0.2/pandoc-3.7.0.2-$(uname -m)-macOS.pkg"
           sudo installer -pkg "$RUNNER_TEMP/pandoc.pkg" -target /
           echo "/usr/local/bin" >> "$GITHUB_PATH"
+      - name: Check Russian PDF fonts
+        run: |
+          work="$RUNNER_TEMP/russian-font-check"
+          mkdir -p "$work"
+          cat > "$work/fonts.tex" <<'TEX'
+          \documentclass{article}
+          \usepackage{fontspec}
+          \setmainfont{PT Serif}
+          \setsansfont[BoldFont=NotoSans-Bold,ItalicFont=NotoSans-Italic,BoldItalicFont=NotoSans-BoldItalic]{NotoSans-Regular}
+          \setmonofont{DejaVu Sans Mono}
+          \newfontfamily\symbols{DejaVu Sans}
+          \begin{document}
+          Русский текст. \textbf{Жирный} \textit{Курсив}
+          {\sffamily Заголовок} {\ttfamily code} {\symbols ①}
+          \end{document}
+          TEX
+          cd "$work"
+          xelatex -interaction=nonstopmode -halt-on-error fonts.tex
       - name: Build Russian PDF
         run: |
           python book-ru/scripts/build_pdf.py --full
@@ -152,7 +178,8 @@ jobs:
           cp book-ru/.tmp/pdf-build/AI-Infra-in-Depth-RU.json build/pdf-ru/AI-Infra-in-Depth-RU-build.json
           pages=$(pdfinfo build/pdf-ru/AI-Infra-in-Depth-RU.pdf | awk '/Pages:/ {print $2}')
           test "$pages" -ge 12
-          pdftotext build/pdf-ru/AI-Infra-in-Depth-RU.pdf - | grep -q "Полная книга"
+          pdftotext build/pdf-ru/AI-Infra-in-Depth-RU.pdf build/pdf-ru/book.txt
+          grep -q "Полная книга" build/pdf-ru/book.txt
       - name: Build and validate Russian EPUB
         env:
           BOOK_SOURCE_REF: ${{ github.sha }}
@@ -167,6 +194,15 @@ jobs:
             build/pdf-ru/AI-Infra-in-Depth-RU.pdf
             build/pdf-ru/AI-Infra-in-Depth-RU.epub
             build/pdf-ru/AI-Infra-in-Depth-RU-build.json
+      - name: Save Russian build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: pdf-build-diagnostics-ru
+          path: |
+            book-ru/.tmp/pdf-build/*.log
+            book-ru/.tmp/pdf-build/*.tex
+          if-no-files-found: ignore
 
   release:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')

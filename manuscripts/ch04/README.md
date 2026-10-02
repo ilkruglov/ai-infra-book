@@ -10,7 +10,7 @@
 |---|---|---|
 | 4-1 | 两种调用都使用同一份 32 MiB 权重。上方是一行输入，下方以部分条带示意 256 行；每行分摊的权重读取从 32 MiB 减至 128 KiB。 | [SVG](figure-4-1-reuse.svg) · [PNG](figure-4-1-reuse.png) · [PDF](figure-4-1-reuse.pdf) |
 | 4-2 | 主机、显存与芯片内部的关系。实线表示数据经过缓存、局部缓冲、矩阵单元和累加存储，虚线表示主机提交工作。图按硬件功能分组。 | [SVG](figure-4-2-components.svg) · [PNG](figure-4-2-components.png) · [PDF](figure-4-2-components.pdf) |
-| 4-3 | 模型与硬件跨代协同。实线沿时间向下：现有加速器影响模型选择，软件运行暴露长期瓶颈，硬件设计回应这些需求，新加速器使更多模型方案成为可能。 | [SVG](figure-4-3-expert-rows.svg) · [PNG](figure-4-3-expert-rows.png) · [PDF](figure-4-3-expert-rows.pdf) |
+| 4-3 | DaVinci 如何安排注意力计算：MTE/NDDMA、片上缓冲、Cube/AIC、Vector/AIV 与交接路径。 | [SVG](figure-4-davinci-attention-path.svg) · [PNG](figure-4-davinci-attention-path.png) · [PDF](figure-4-davinci-attention-path.pdf) |
 | 4-4 | 三行三列的乘加阵列示意。输入沿行传递，权重沿列传递，每个乘加单元保留自己的部分和。这里用小阵列解释操作数复用。 | [SVG](figure-4-4-attention.svg) · [PNG](figure-4-4-attention.png) · [PDF](figure-4-4-attention.pdf) |
 | 4-5 | 一个专家的 16 行计算块。每专家只有两行时，剩余十四行填零；每专家有 64 行时，可组成四个完整块，图中展示其中一块。 | [SVG](figure-4-5-precision.svg) · [PNG](figure-4-5-precision.png) · [PDF](figure-4-5-precision.pdf) |
 | 4-6 | 相同 512 行有效输入在全部专家上的执行量。分散到 256 个专家后总计执行 4096 行，集中到八个专家时只执行 512 行。 | [SVG](figure-4-6-capacity.svg) · [PNG](figure-4-6-capacity.png) · [PDF](figure-4-6-capacity.pdf) |
@@ -53,7 +53,7 @@ python3 -m venv /tmp/ch04-book-venv
 | --- | --- | --- | --- | --- |
 | 4-1 | 两种调用都使用同一份 32 MiB 权重。上方是一行输入，下方以部分条带示意 256 行；每行分摊的权重读取从 32 MiB 减至 128 KiB。 | [SVG](figure-4-1-reuse.svg) | [PNG](figure-4-1-reuse.png) | [PDF](figure-4-1-reuse.pdf) |
 | 4-2 | 主机、显存与芯片内部的关系。实线表示数据经过缓存、局部缓冲、矩阵单元和累加存储，虚线表示主机提交工作。图按硬件功能分组。 | [SVG](figure-4-2-components.svg) | [PNG](figure-4-2-components.png) | [PDF](figure-4-2-components.pdf) |
-| 4-3 | 模型与硬件跨代协同。实线沿时间向下：现有加速器影响模型选择，软件运行暴露长期瓶颈，硬件设计回应这些需求，新加速器使更多模型方案成为可能。 | [SVG](figure-4-codesign-loop.svg) | [PNG](figure-4-codesign-loop.png) | [PDF](figure-4-codesign-loop.pdf) |
+| 4-3 | DaVinci 如何安排注意力计算：MTE/NDDMA、片上缓冲、Cube/AIC、Vector/AIV 与交接路径。 | [SVG](figure-4-davinci-attention-path.svg) | [PNG](figure-4-davinci-attention-path.png) | [PDF](figure-4-davinci-attention-path.pdf) |
 | 4-4 | 上：同一驱动门经数百微米横向连线传送信号，要给沿线分布电容充电；折叠后改为数微米的垂直连接。下：电压从 0.85 V 降到 0.55 V 使动态功耗降到 0.42；功耗降到 0.75 而投影面积降到 0.60，功率密度反而升到 1.25。 | [SVG](figure-4-energy-wire.svg) | [PNG](figure-4-energy-wire.png) | [PDF](figure-4-energy-wire.pdf) |
 | 4-5 | 上：各级存储与链路每 byte 能耗，对数坐标。下：Qwen3-8B 单请求 8K decode 一步的能量分账（权重 0.481 J、KV 0.038 J、计算 0.015 J），以及同样 16.345 GB 全部来自某一层次时的能量。 | [SVG](figure-4-energy-ladder.svg) | [PNG](figure-4-energy-ladder.png) | [PDF](figure-4-energy-ladder.pdf) |
 | 4-6 | 封装俯视示意：两颗达到光罩上限的 die 居中，八堆 HBM 沿两侧边缘排列，中介层承载 die 与 HBM 之间以及 die 之间的连线。每堆带宽由 1,024 根引脚与引脚速率决定，每堆容量由层数与每层容量决定。 | [SVG](figure-4-energy-package.svg) | [PNG](figure-4-energy-package.png) | [PDF](figure-4-energy-package.pdf) |
@@ -73,7 +73,7 @@ python3 -m venv /tmp/ch04-book-venv
 | 4-20 | 三个输入槽提前发起前三块，第一槽释放后接收第四块。矩阵单元从 192 连续计算到 704 tick，第四槽不再缩短完成时间。横轴一个 tick 为 B200 SM 的一个时钟周期；各行对应一个数据块，灰色表示输入槽占用，蓝色表示传输，绿色表示计算，竖标记表示数据就绪。 | [SVG](figure-4-pipeline-three.svg) | [PNG](figure-4-pipeline-three.png) | [PDF](figure-4-pipeline-three.pdf) |
 | 4-21 | 矩阵与向量单元通过完整行组交接。QK 产生分数，Softmax 产生概率，PV 使用概率后释放槽；另一槽容纳相邻行组，使不同组可以重叠推进。 | [SVG](figure-4-matrix-vector-handoff.svg) | [PNG](figure-4-matrix-vector-handoff.png) | [PDF](figure-4-matrix-vector-handoff.pdf) |
 | 4-22 | 计算都放在 die 0 时，要跨 die 读取 die 1 上的 32 GiB 权重。B200 的跨 die 读取受 die 1 的 HBM 限制，约 8.6 ms，与本地读取相同；昇腾 910C 受 die 间链路限制，约 127 ms。 | [SVG](figure-4-10-locality.svg) | [PNG](figure-4-10-locality.png) | [PDF](figure-4-10-locality.pdf) |
-| 4-23 | 计算放到权重所在的 die 后，链路上只交换 64 MiB 输入与结果，两侧各读本地权重。B200 仍约 8.6 ms；昇腾 910C 从约 127 ms 降到约 21.5 ms。 | [SVG](figure-4-locality-compute.svg) | [PNG](figure-4-locality-compute.png) | [PDF](figure-4-locality-compute.pdf) |
+| 4-23 | QK、Softmax、PV 的两槽执行时间线：两个缓冲槽让不同查询行组交错推进。 | [SVG](figure-4-davinci-attention-timeline.svg) | [PNG](figure-4-davinci-attention-timeline.png) | [PDF](figure-4-davinci-attention-timeline.pdf) |
 | 4-24 | 一次 8 KiB 传输的启动与传输时间。固定启动开销 2 μs，NVLink 从 A100 的每方向 300 GB/s 换成 H100 的 450 GB/s，只缩短很薄的蓝色传输项。 | [SVG](figure-4-11-interconnect.svg) | [PNG](figure-4-11-interconnect.png) | [PDF](figure-4-11-interconnect.pdf) |
 | 4-25 | 一次 2 MiB 传输在相同启动条件下的时间。蓝色传输项占主要部分，换成 H100 的 NVLink 带来更显著的收益；本图纵轴范围与上一图分别标注。 | [SVG](figure-4-large-message.svg) | [PNG](figure-4-large-message.png) | [PDF](figure-4-large-message.pdf) |
 | 4-26 | 同一 V100 上的 Q 投影。4,096 行时，Tensor Core 大幅缩短矩阵计算；一行时，两条计算路径都短于权重传输。上下两组使用分别标注的时间单位。 | [SVG](figure-4-evolution-tensor-budget.svg) | [PNG](figure-4-evolution-tensor-budget.png) | [PDF](figure-4-evolution-tensor-budget.pdf) |

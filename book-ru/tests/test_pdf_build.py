@@ -148,6 +148,35 @@ def test_prepare_later_chapter_removes_manual_number(tmp_path: Path) -> None:
     assert prepared == "# Архитектура\n\n## Внимание\n"
 
 
+def test_prepare_preserves_html_section_anchor_in_latex(tmp_path: Path) -> None:
+    chapter = tmp_path / "chapter2.md"
+    chapter.write_text(
+        '# Глава 2. Архитектура\n\n[Таблицы](#model-matrix-tables).\n\n'
+        '<a id="model-matrix-tables"></a>\n\n## Справочные таблицы\n',
+        encoding="utf-8",
+    )
+    prepared, _ = prepare_markdown(
+        chapter,
+        original_path="manuscripts/02.md",
+        repository="https://github.com/example/book",
+        commit="abc123",
+    )
+    chapter.write_text(prepared, encoding="utf-8")
+    tex = subprocess.check_output(
+        ["pandoc", str(chapter), "--file-scope", "--to=latex"], text=True
+    )
+    target = re.search(r"\\hyperref\[([^\]]+)\]", tex)
+    if target is not None:
+        assert "model-matrix-tables" in target[1]
+        assert f"\\label{{{target[1]}}}" in tex
+    else:
+        # Pandoc 3.1 emits hyperlink/hypertarget for standalone span anchors.
+        target = re.search(r"\\hyperlink\{([^}]+)\}", tex)
+        assert target is not None, tex
+        assert "model-matrix-tables" in target[1]
+        assert f"\\hypertarget{{{target[1]}}}" in tex
+
+
 def test_preview_can_include_second_chapter(tmp_path: Path) -> None:
     book = tmp_path / "book"
     book.mkdir()

@@ -12,6 +12,36 @@
     "text_extent_warnings": []
   },
   {
+    "figure": "figure-4-davinci-attention-path",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-energy-wire",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-energy-ladder",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-energy-package",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-energy-power-cap",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
     "figure": "figure-4-matrix-array",
     "width_pt": 420.0,
     "min_label_pt": 11.0,
@@ -43,6 +73,12 @@
   },
   {
     "figure": "figure-4-6-capacity",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-l2-structure",
     "width_pt": 420.0,
     "min_label_pt": 11.0,
     "text_extent_warnings": []
@@ -96,6 +132,24 @@
     "text_extent_warnings": []
   },
   {
+    "figure": "figure-4-davinci-attention-timeline",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-cross-sm-handoff",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
+    "figure": "figure-4-sync-ladder",
+    "width_pt": 420.0,
+    "min_label_pt": 11.0,
+    "text_extent_warnings": []
+  },
+  {
     "figure": "figure-4-10-locality",
     "width_pt": 420.0,
     "min_label_pt": 11.0,
@@ -126,6 +180,12 @@
     "text_extent_warnings": []
   },
   {
+    "figure": "figure-4-rom-paths",
+    "width_pt": 420.0,
+    "min_label_pt": 12.0,
+    "text_extent_warnings": []
+  },
+  {
     "figure": "figure-4-13-roofline",
     "width_pt": 420.0,
     "min_label_pt": 11.0,
@@ -139,60 +199,6 @@
   },
   {
     "figure": "figure-4-performance-traffic",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-l2-structure",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-cross-sm-handoff",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-sync-ladder",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-codesign-loop",
-    "width_pt": 420.0,
-    "min_label_pt": 12.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-rom-paths",
-    "width_pt": 420.0,
-    "min_label_pt": 12.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-energy-wire",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-energy-ladder",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-energy-package",
-    "width_pt": 420.0,
-    "min_label_pt": 11.0,
-    "text_extent_warnings": []
-  },
-  {
-    "figure": "figure-4-energy-power-cap",
     "width_pt": 420.0,
     "min_label_pt": 11.0,
     "text_extent_warnings": []
